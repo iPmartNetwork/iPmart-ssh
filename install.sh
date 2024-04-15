@@ -45,7 +45,7 @@ userInputs(){
 }
 
 getAppVersion(){
-    version=$(sudo curl -Ls "https://api.github.com/repos/ipmartnetwork/iPmart-SSH-Panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    version=$(sudo curl -Ls "https://api.github.com/repos/ipmartnetwork/iPmart-SSH/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     echo $version;
 }
 
@@ -178,7 +178,7 @@ copyPanelRepo(){
         rm -rf /var/www/html/account
     fi
 
-   link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH-Panel/main/app.zip
+   link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/app.zip
 
     if [[ -n "$link" ]]; then
         rm -fr /var/www/html/update.zip
@@ -315,7 +315,7 @@ configAppache(){
     <IfModule mod_gnutls.c>
         Listen 4443
     </IfModule>" > /etc/apache2/ports.conf
-    echo '#SoVPNSSH' > /var/www/sovpnsshport
+    echo '#SoVPNSSH' > /var/www/ipmartsshport
     sudo sed -i -e '$a\'$'\n''sovpnsshport '$serverPort /var/www/ipmartsshport
     wait
     ##Restart the apache server to use new port
@@ -453,7 +453,7 @@ ENDOFFILE
 }
 
 installationInfo(){
-    #link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH-Panel/main/app.zip
+    #link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/app.zip
 
     #if [[ -n "$link" ]]; then
     #    rm -fr /var/www/html/update.zip
@@ -470,7 +470,7 @@ installationInfo(){
     #ln -s /etc/x-ui/x-ui.db /var/www/html/account/views/x-ui.txt
     clear
     echo -e "\n"
-    bannerText=$(curl -s https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH-Panel/main/ipmart-banner.txt)
+    bannerText=$(curl -s https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/ipmart.txt)
     printf "%s" "$bannerText"
     echo -e "\n"
     printf "Panel Link : $httpProtcol://${ipv4}:$panelPort/login"
@@ -500,7 +500,7 @@ sshPort=$(getSshPort)
 panelPort=$(getPanelPort)
 httpProtcol="http"
 panelPath=$(getPanelPath)
-nethogsLink=https://raw.githubusercontent.com/iPmartNetwork/iPmart-SSH-Panel/main/nethogs-json/install.sh
+nethogsLink=https://raw.githubusercontent.com/iPmartNetwork/iPmart-SSH/main/nethogs-json/install.sh
 checkRoot
 userInputs
 updateShhConfig
