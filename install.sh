@@ -302,7 +302,7 @@ configAppache(){
         Listen 4443
     </IfModule>" > /etc/apache2/ports.conf
     echo '#iPmartSSH' > /var/www/ipmartsshport
-    sudo sed -i -e '$a\'$'\n''sovpnsshport '$serverPort /var/www/ipmartsshport
+    sudo sed -i -e '$a\'$'\n''ipmartsshport '$serverPort /var/www/ipmartsshport
     wait
     
     ##Replace 'Virtual Hosts' and 'List' entries with the new port number
@@ -315,8 +315,8 @@ configAppache(){
     <IfModule mod_gnutls.c>
         Listen 4443
     </IfModule>" > /etc/apache2/ports.conf
-    echo '#SoVPNSSH' > /var/www/ipmartsshport
-    sudo sed -i -e '$a\'$'\n''sovpnsshport '$serverPort /var/www/ipmartsshport
+    echo '#iPmartSSH' > /var/www/ipmartsshport
+    sudo sed -i -e '$a\'$'\n''ipmartsshport '$serverPort /var/www/ipmartsshport
     wait
     ##Restart the apache server to use new port
     sudo /etc/init.d/apache2 reload
@@ -341,7 +341,7 @@ installNethogs(){
 }
 
 configDatabase(){
-    dbName="SoVPNSSH"
+    dbName="iPmartSSH"
     dbPrefix="cp_"
     appVersion=$(getAppVersion)
     mysql -e "create database $dbName;" &
@@ -354,7 +354,7 @@ configDatabase(){
     # Dump and remove the old database
     if mysql -u root -e "USE ipmartSSH" 2>/dev/null; then
         # Dump and restore the old database to the new database
-        mysqldump -u root --force SoVPNnSSH | mysql -u root $dbName
+        mysqldump -u root --force iPmartSSH | mysql -u root $dbName
         echo "Data has been dumped from 'ipmartSSH' to '$dbName'."
 
         # Remove the old database
