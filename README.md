@@ -31,9 +31,11 @@
 ✔️ تنظیم آدرس جعلی (جلوگیری از فیلترینگ) <br>
 ✔️ محدودیت IP(جلوگیری از ورود کاربران به برخی سایت ها)<br>
 ✔️ اتصال API<br>
-✔️ اطلاعات سیستم(RAM, CPU, HDD)<br>
+✔️ اطلاعات سیستم(RAM, CPU, HDD)<br> 
 
-ت از ما :hearts:
+
+
+## حمایت از ما :hearts:
 حمایت های شما برای ما دلگرمی بزرگی است<br> 
 <p align="left">
 <a href="https://plisio.net/donate/kB7QU7f7" target="_blank"><img src="https://plisio.net/img/donate/donate_light_icons_mono.png" alt="Donate Crypto on Plisio" width="240" height="80" /></a><br>
