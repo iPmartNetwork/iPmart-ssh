@@ -33,6 +33,17 @@
 ✔️ اتصال API<br>
 ✔️ اطلاعات سیستم(RAM, CPU, HDD)<br>
 
+ت از ما :hearts:
+حمایت های شما برای ما دلگرمی بزرگی است<br> 
+<p align="left">
+<a href="https://plisio.net/donate/kB7QU7f7" target="_blank"><img src="https://plisio.net/img/donate/donate_light_icons_mono.png" alt="Donate Crypto on Plisio" width="240" height="80" /></a><br>
+	
+|                    TRX                   |                       BNB                         |                    Litecoin                       |
+| ---------------------------------------- |:-------------------------------------------------:| -------------------------------------------------:|
+| ```TJbTYV1fFo2485sYMyajxGPLFzxmNmPrNA``` |  ```0x4af3de9b303a8d43105e284823d95b4c600961a3``` | ```MPrkzFiNtw4Rg67bbZB6gCxa9LV87orABM``` |	
+
+</p>	
+
 # نصب
 
 برای نصب دستور زیر را وارد کنید<br>
