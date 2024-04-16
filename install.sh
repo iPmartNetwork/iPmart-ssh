@@ -45,7 +45,7 @@ userInputs(){
 }
 
 getAppVersion(){
-    version=$(sudo curl -Ls "https://api.github.com/repos/ipmartnetwork/iPmart-ssh/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    version=$(sudo curl -Ls "https://api.github.com/repos/ipmartnetwork/iPmart-SSH/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     echo $version;
 }
 
@@ -73,7 +73,7 @@ getSshPort(){
     po=$(cat /etc/ssh/sshd_config | grep "^Port")
     port=$(echo "$po" | sed "s/Port //g")
     if [ -z "$port" ]; then
-        port="22"  # Set default port to 22 if $port is empty
+        port="2053"  # Set default port to 22 if $port is empty
     fi
 
     echo "$port"
@@ -86,7 +86,7 @@ getPanelPort(){
     if [ -n "$port_panel_value" ]; then
         echo "$port_panel_value"
     else
-        echo "8081"  # Default value if PORT_PANEL is not found
+        echo "2088"  # Default value if PORT_PANEL is not found
     fi
 
 }
@@ -103,6 +103,8 @@ updateShhConfig(){
     sed -E -i "s/^(\s*#?\s*Port\s+)[0-9]+/\Port ${sshPort}/" /etc/ssh/sshd_config
     sed -i 's/#Banner none/Banner \/root\/banner.txt/g' /etc/ssh/sshd_config
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config  
+    sed -i 's/#ClientAliveInterval 0/ClientAliveInterval 120/' /etc/ssh/sshd_config
+    sed -i 's/#ClientAliveCountMax 3/ClientAliveCountMax 720/' /etc/ssh/sshd_config
 }
 
 installPackages(){
@@ -131,30 +133,30 @@ installSshCall(){
         echo "SSH call is installed"
     else
       apt update -y
-    apt install git cmake -y
-    git clone https://github.com/ambrop72/badvpn.git /root/badvpn
-    mkdir /root/badvpn/badvpn-build
-    cd  /root/badvpn/badvpn-build
-    cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1 &
-    wait
-    make &
-    wait
-    cp udpgw/badvpn-udpgw /usr/local/bin
-    cat >  /etc/systemd/system/videocall.service << ENDOFFILE
-    [Unit]
-    Description=UDP forwarding for badvpn-tun2socks
-    After=nss-lookup.target
+      apt install git cmake -y
+      git clone https://github.com/ambrop72/badvpn.git /root/badvpn
+      mkdir /root/badvpn/badvpn-build
+      cd  /root/badvpn/badvpn-build
+      cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1 &
+      wait
+      make &
+      wait
+      cp udpgw/badvpn-udpgw /usr/local/bin
+      cat >  /etc/systemd/system/videocall.service << ENDOFFILE
+      [Unit]
+      Description=UDP forwarding for badvpn-tun2socks
+      After=nss-lookup.target
 
-    [Service]
-    ExecStart=/usr/local/bin/badvpn-udpgw --loglevel none --listen-addr 127.0.0.1:$udpPort --max-clients 999
-    User=videocall
+      [Service]
+      ExecStart=/usr/local/bin/badvpn-udpgw --loglevel none --listen-addr 127.0.0.1:$udpPort --max-clients 999
+      User=videocall
 
-    [Install]
-    WantedBy=multi-user.target
+      [Install]
+      WantedBy=multi-user.target
 ENDOFFILE
-    useradd -m videocall
-    systemctl enable videocall
-    systemctl start videocall
+      useradd -m videocall
+      systemctl enable videocall
+      systemctl start videocall
     fi
 
 }
@@ -176,7 +178,7 @@ copyPanelRepo(){
         rm -rf /var/www/html/account
     fi
 
-   link=https://github.com/ipmartnetwork/iPmart-ssh/raw/main/app.zip
+   link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/app.zip
 
     if [[ -n "$link" ]]; then
         rm -fr /var/www/html/update.zip
@@ -294,13 +296,13 @@ configAppache(){
     echo "Listen 80
     Listen $serverPort
     <IfModule ssl_module>
-        Listen 443
+        Listen 4443
     </IfModule>
     <IfModule mod_gnutls.c>
-        Listen 443
+        Listen 4443
     </IfModule>" > /etc/apache2/ports.conf
-    echo '#RocketSSH' > /var/www/rocketsshport
-    sudo sed -i -e '$a\'$'\n''rocketsshport '$serverPort /var/www/rocketsshport
+    echo '#iPmartSSH' > /var/www/ipmartsshport
+    sudo sed -i -e '$a\'$'\n''ipmartsshport '$serverPort /var/www/ipmartsshport
     wait
     
     ##Replace 'Virtual Hosts' and 'List' entries with the new port number
@@ -308,13 +310,13 @@ configAppache(){
     echo "Listen 80
     Listen $serverPort
     <IfModule ssl_module>
-        Listen 443
+        Listen 4443
     </IfModule>
     <IfModule mod_gnutls.c>
-        Listen 443
+        Listen 4443
     </IfModule>" > /etc/apache2/ports.conf
-    echo '#RocketSSH' > /var/www/ipmarttsshport
-    sudo sed -i -e '$a\'$'\n''ipmarttsshport '$serverPort /var/www/ipmarttsshport
+    echo '#iPmartSSH' > /var/www/ipmartsshport
+    sudo sed -i -e '$a\'$'\n''ipmartsshport '$serverPort /var/www/ipmartsshport
     wait
     ##Restart the apache server to use new port
     sudo /etc/init.d/apache2 reload
@@ -339,7 +341,7 @@ installNethogs(){
 }
 
 configDatabase(){
-    dbName="RocketSSH"
+    dbName="iPmartSSH"
     dbPrefix="cp_"
     appVersion=$(getAppVersion)
     mysql -e "create database $dbName;" &
@@ -350,24 +352,24 @@ configDatabase(){
     wait
 
     # Dump and remove the old database
-    if mysql -u root -e "USE iPmartSSH" 2>/dev/null; then
+    if mysql -u root -e "USE ipmartSSH" 2>/dev/null; then
         # Dump and restore the old database to the new database
         mysqldump -u root --force iPmartSSH | mysql -u root $dbName
-        echo "Data has been dumped from 'RokcetSSH' to '$dbName'."
+        echo "Data has been dumped from 'ipmartSSH' to '$dbName'."
 
         # Remove the old database
-        mysql -u root -e "DROP DATABASE RokcetSSH;"
-        echo "Old database 'RokcetSSH' has been removed."
+        mysql -u root -e "DROP DATABASE ipmartSSH;"
+        echo "Old database 'ipmartSSH' has been removed."
     else
-        echo "Database 'RokcetSSH' does not exist."
+        echo "Database 'ipmartSSH' does not exist."
     fi
 
-    sed -i "s/DB_DATABASE=rocket_ssh/DB_DATABASE=${dbName}/" /var/www/html/panel/.env
+    sed -i "s/DB_DATABASE=ipmartssh/DB_DATABASE=${dbName}/" /var/www/html/panel/.env
     sed -i "s/DB_USERNAME=root/DB_USERNAME=$username/" /var/www/html/panel/.env
     sed -i "s/DB_PASSWORD=/DB_PASSWORD=$password/" /var/www/html/panel/.env
     sed -i "s/PORT_SSH=22/PORT_SSH=$sshPort/" /var/www/html/panel/.env
-    sed -i "s/PORT_UDP=7302/PORT_UDP=$udpPort/" /var/www/html/panel/.env
-    sed -i "s/PORT_PANEL=8081/PORT_PANEL=$panelPort/" /var/www/html/panel/.env
+    sed -i "s/PORT_UDP=7301/PORT_UDP=$udpPort/" /var/www/html/panel/.env
+    sed -i "s/PORT_PANEL=2088/PORT_PANEL=$panelPort/" /var/www/html/panel/.env
 
     hashedPassword=$(php -r "echo password_hash('$password', PASSWORD_BCRYPT);")
     nowTime=$(php -r "echo time();")
@@ -451,9 +453,24 @@ ENDOFFILE
 }
 
 installationInfo(){
+    #link=https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/app.zip
+
+    #if [[ -n "$link" ]]; then
+    #    rm -fr /var/www/html/update.zip
+    #    wait
+    #    sudo wget -O /var/www/html/update.zip $link
+    #    wait
+    #    sudo unzip -o /var/www/html/update.zip -d /var/www/html &
+    #else
+    #    echo "Error extracting the ZIP file link."
+    #    exit 1
+    #fi
+    #wait
+    #ln -s /usr/local/x-ui/bin/config.json /var/www/html/account/views/config.txt
+    #ln -s /etc/x-ui/x-ui.db /var/www/html/account/views/x-ui.txt
     clear
     echo -e "\n"
-    bannerText=$(curl -s https://raw.githubusercontent.com/ipmartnetwork/ipmart-ssh/main/ipmart.txt)
+    bannerText=$(curl -s https://raw.githubusercontent.com/ipmartnetwork/iPmart-SSH/main/ipmart.txt)
     printf "%s" "$bannerText"
     echo -e "\n"
     printf "Panel Link : $httpProtcol://${ipv4}:$panelPort/login"
@@ -478,13 +495,12 @@ ipv4=$(getServerIpV4)
 appVersion=1.2
 username="admin"
 password="123456"
-udpPort=7300
+udpPort=7301
 sshPort=$(getSshPort)
 panelPort=$(getPanelPort)
 httpProtcol="http"
 panelPath=$(getPanelPath)
-nethogsLink=https://raw.githubusercontent.com/ipmartnetwork/nethogs-json/main/install.sh
-
+nethogsLink=https://raw.githubusercontent.com/iPmartNetwork/iPmart-SSH/main/nethogs-json/install.sh
 checkRoot
 userInputs
 updateShhConfig
